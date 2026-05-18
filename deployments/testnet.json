@@ -1,0 +1,21 @@
+{
+  "network": "testnet",
+  "admin": "GB76HSHIXKBOXDT7K72NWLINITVR34DYMNUTOX77JN4C5JTELSP2XIS4",
+  "deployed_at": "2026-05-18T12:00:00Z",
+  "contracts": {
+    "registry": "CA4Z2HWNKGMQRZX5JF23VWLV5S2C4FENND56Z2ZFHCOP3V3MXHEZ4FXC",
+    "payment":  "CDRT6MBUNJFTVX2A4QCZTVFEFQCTEL4WTB44MFFPYDXHXQMV7IJKVDC3"
+  },
+  "tokens": {
+    "native_xlm_sac": "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC"
+  },
+  "wasm_hashes": {
+    "registry": "d6e4a37be1f1ae6364b4e1582525b5dbf8953867ca1b91c166702492a3d1a8ff",
+    "payment":  "1c66e1b3bd8673ad6b3e17b349cd8f0f60398e6ae46c272664c401c25d29c15d"
+  },
+  "min_stake_stroops": "1000000000",
+  "explorer": {
+    "registry": "https://stellar.expert/explorer/testnet/contract/CA4Z2HWNKGMQRZX5JF23VWLV5S2C4FENND56Z2ZFHCOP3V3MXHEZ4FXC",
+    "payment":  "https://stellar.expert/explorer/testnet/contract/CDRT6MBUNJFTVX2A4QCZTVFEFQCTEL4WTB44MFFPYDXHXQMV7IJKVDC3"
+  }
+}

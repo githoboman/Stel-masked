@@ -16,6 +16,12 @@ NETWORK="testnet"
 OUT_FILE="deployments/testnet.json"
 MIN_STAKE="${MIN_STAKE:-1000000000}" # 100 XLM in stroops
 
+# Windows + Git Bash: Rust HTTP client may not find system root certs.
+# Point it at a bundled CA file if SSL_CERT_FILE isn't already set.
+if [[ -z "${SSL_CERT_FILE:-}" && -f /usr/ssl/certs/ca-bundle.crt ]]; then
+  export SSL_CERT_FILE=/usr/ssl/certs/ca-bundle.crt
+fi
+
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$REPO_ROOT"
 
