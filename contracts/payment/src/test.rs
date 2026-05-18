@@ -19,7 +19,7 @@ fn setup() -> (Env, PaymentClient<'static>, Address, Address, Address, TokenClie
     let token = TokenClient::new(&env, &token_addr);
     let token_admin = StellarAssetClient::new(&env, &token_addr);
 
-    let contract_id = env.register(Payment, ());
+    let contract_id = env.register_contract(None, Payment);
     let client = PaymentClient::new(&env, &contract_id);
     client.initialize(&admin, &token_addr);
 

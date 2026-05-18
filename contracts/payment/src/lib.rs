@@ -1,8 +1,8 @@
 #![no_std]
 
 use soroban_sdk::{
-    contract, contractimpl, contracterror, contracttype, contractevent,
-    token, Address, Env, Symbol, symbol_short,
+    contract, contractimpl, contracterror, contracttype,
+    symbol_short, token, Address, Env,
 };
 
 #[contracterror]
@@ -35,33 +35,6 @@ pub enum DataKey {
     Token,
     Admin,
     Session(Address, Address),
-}
-
-#[contractevent]
-pub struct SessionOpened {
-    #[topic]
-    pub client: Address,
-    #[topic]
-    pub node: Address,
-    pub deposit: i128,
-}
-
-#[contractevent]
-pub struct PaymentSettled {
-    #[topic]
-    pub client: Address,
-    #[topic]
-    pub node: Address,
-    pub amount: i128,
-}
-
-#[contractevent]
-pub struct SessionClosed {
-    #[topic]
-    pub client: Address,
-    #[topic]
-    pub node: Address,
-    pub refund: i128,
 }
 
 #[contract]
@@ -112,7 +85,10 @@ impl Payment {
         };
         env.storage().persistent().set(&key, &session);
 
-        SessionOpened { client, node, deposit }.publish(&env);
+        env.events().publish(
+            (symbol_short!("opened"), client, node),
+            deposit,
+        );
         Ok(())
     }
 
@@ -151,7 +127,10 @@ impl Payment {
         let token = token::Client::new(&env, &token_addr);
         token.transfer(&env.current_contract_address(), &node, &amount);
 
-        PaymentSettled { client, node, amount }.publish(&env);
+        env.events().publish(
+            (symbol_short!("settled"), client, node),
+            amount,
+        );
         Ok(())
     }
 
@@ -185,7 +164,10 @@ impl Payment {
             token.transfer(&env.current_contract_address(), &client, &refund);
         }
 
-        SessionClosed { client, node, refund }.publish(&env);
+        env.events().publish(
+            (symbol_short!("closed"), client, node),
+            refund,
+        );
         Ok(refund)
     }
 

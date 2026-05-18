@@ -1,8 +1,8 @@
 #![no_std]
 
 use soroban_sdk::{
-    contract, contractimpl, contracterror, contracttype, contractevent,
-    Address, BytesN, Env, String, Symbol, symbol_short,
+    contract, contractimpl, contracterror, contracttype,
+    symbol_short, Address, BytesN, Env, String,
 };
 
 #[contracterror]
@@ -34,21 +34,6 @@ pub enum DataKey {
     Admin,
     MinStake,
     Node(Address),
-}
-
-#[contractevent]
-pub struct NodeRegistered {
-    #[topic]
-    pub operator: Address,
-    pub endpoint: String,
-    pub stake: i128,
-}
-
-#[contractevent]
-pub struct NodeDeregistered {
-    #[topic]
-    pub operator: Address,
-    pub stake_returned: i128,
 }
 
 #[contract]
@@ -105,7 +90,10 @@ impl Registry {
 
         env.storage().persistent().set(&key, &node);
 
-        NodeRegistered { operator, endpoint, stake }.publish(&env);
+        env.events().publish(
+            (symbol_short!("registd"), operator),
+            (endpoint, stake),
+        );
         Ok(())
     }
 
@@ -120,7 +108,10 @@ impl Registry {
 
         env.storage().persistent().remove(&key);
 
-        NodeDeregistered { operator, stake_returned: node.stake }.publish(&env);
+        env.events().publish(
+            (symbol_short!("deregd"), operator),
+            node.stake,
+        );
         Ok(node.stake)
     }
 

@@ -7,7 +7,7 @@ fn setup() -> (Env, RegistryClient<'static>, Address) {
     let env = Env::default();
     env.mock_all_auths();
     let admin = Address::generate(&env);
-    let contract_id = env.register(Registry, ());
+    let contract_id = env.register_contract(None, Registry);
     let client = RegistryClient::new(&env, &contract_id);
     client.initialize(&admin, &100_0000000_i128);
     (env, client, admin)
@@ -78,7 +78,7 @@ fn deregisters_and_returns_stake() {
 
 #[test]
 fn double_initialize_fails() {
-    let (env, client, admin) = setup();
+    let (_env, client, admin) = setup();
     let res = client.try_initialize(&admin, &50_0000000_i128);
     assert_eq!(res, Err(Ok(Error::AlreadyInitialized)));
 }
