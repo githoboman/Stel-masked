@@ -1,9 +1,9 @@
-# Wave Issue Backlog — 50 issues
+# Wave Issue Backlog — 65 issues
 
 Paste each block as a GitHub issue. Complexity tag in brackets maps directly to Drips Wave point tier.
 
-**Distribution:** 15 trivial · 25 medium · 10 high.
-**Areas:** contracts (12) · backend daemon (15) · client CLI (8) · frontend (8) · infra/docs (7).
+**Distribution:** 19 trivial · 32 medium · 14 high.
+**Areas:** contracts + tests (27) · backend daemon (15) · client CLI (8) · frontend (8) · infra/docs (7).
 
 ---
 
@@ -224,3 +224,67 @@ Files: `docs/CONTRACTS.md`
 ## 50. End-to-end demo script — [high]
 `scripts/e2e.sh` spins up a local Stellar quickstart, deploys contracts, starts `noded` in a container, runs a `stelvpn connect` + transfer + disconnect, asserts balances changed correctly. Used in CI nightly.
 Files: `scripts/e2e.sh`, `.github/workflows/e2e.yml`
+
+---
+
+# Contracts — deeper coverage (51–65)
+
+## 51. `registry`: transfer admin — [medium]
+Add `transfer_admin(new_admin)`. Current admin auths, new admin stored. Emit `AdminTransferred{old,new}`. Tests: only admin can call, non-admin rejected, post-transfer the old admin loses access.
+Files: `contracts/registry/src/{lib,test}.rs`
+
+## 52. `registry`: lookup by endpoint — [medium]
+Secondary index `Endpoint(String) -> Address`. Maintain on register / deregister. Add `find_by_endpoint(endpoint) -> Option<Address>`. Tests cover insert, lookup, removal.
+Files: `contracts/registry/src/{lib,test}.rs`
+
+## 53. `registry`: cap total registered nodes — [medium]
+Admin-settable `max_nodes` (default unlimited). Reject `register_node` once count reached with new `Error::CapacityReached`. Maintain counter incremented/decremented atomically. Tests: under cap allowed, at cap rejected, deregister frees a slot.
+Files: `contracts/registry/src/{lib,test}.rs`
+
+## 54. `registry`: fuzz tests for register/deregister — [high]
+Use `proptest` to generate random sequences of register/deregister/pause across N operators, assert: (a) every active node retrievable, (b) deregistered nodes return their full stake, (c) is_active matches store state. 200 sequences min.
+Files: `contracts/registry/Cargo.toml` (dev-dep), `contracts/registry/src/test_fuzz.rs`
+
+## 55. `payment`: partial refund on dispute — [high]
+Add `dispute_close(client, node, agreed_consumed)` callable by admin only — overrides session.consumed to agreed value, settles delta, refunds remainder. Emit `SessionDisputed{client,node,final_consumed}`. Tests cover lowering and raising consumed, idempotency.
+Files: `contracts/payment/src/{lib,test}.rs`
+
+## 56. `payment`: per-session timestamps + getter — [trivial]
+Add `last_settle_at: u64` to Session, set on each settle. Add `session_age(client, node) -> u64` returning seconds since `opened_at`. Tests verify both fields advance correctly.
+Files: `contracts/payment/src/{lib,test}.rs`
+
+## 57. `payment`: enforce max-deposit ceiling — [trivial]
+Admin-settable `max_deposit_per_session`. Reject open/top_up over ceiling with `Error::DepositTooLarge`. Tests for boundary.
+Files: `contracts/payment/src/{lib,test}.rs`
+
+## 58. `payment`: integration test — full session lifecycle — [medium]
+Single test: open → settle three times → top_up → settle once more → close. Assert client + node + contract balances at every step. No new entrypoints, just thorough flow coverage.
+Files: `contracts/payment/src/test.rs`
+
+## 59. `registry` + `payment`: cross-contract test — [high]
+Test where the payment contract checks (via mock or stub) that the node address is registered before allowing `open_session`. Demonstrates cross-contract invocation pattern. Add `require_registered: bool` config to payment to gate the behavior.
+Files: `contracts/payment/src/{lib,test}.rs`
+
+## 60. Contract upgrade test pattern — [medium]
+Add `upgrade(new_wasm_hash: BytesN<32>)` admin entrypoint to both contracts using `env.deployer().update_current_contract_wasm()`. Test verifies admin-only auth and that the call is well-formed (we don't actually upgrade in test). Documents the upgrade flow in `docs/UPGRADES.md`.
+Files: `contracts/registry/src/lib.rs`, `contracts/payment/src/lib.rs`, `docs/UPGRADES.md`
+
+## 61. Storage TTL extension calls — [medium]
+Add `extend_ttl(client, node)` to payment and `extend_node_ttl(operator)` to registry. Each calls `env.storage().persistent().extend_ttl(&key, threshold, extend_to)`. Stops long-lived sessions/nodes from being archived. Tests verify the calls succeed; TTL math doesn't need assertion in unit tests.
+Files: both contracts
+
+## 62. `registry`: snapshot tests for error variants — [trivial]
+Add a test per error variant that triggers it and snapshot-asserts the returned `Error` discriminant. Catches accidental reordering of the enum (which would change error codes for existing clients).
+Files: `contracts/registry/src/test.rs`
+
+## 63. `payment`: snapshot tests for error variants — [trivial]
+Same as #62, but for the payment contract.
+Files: `contracts/payment/src/test.rs`
+
+## 64. Event topic audit — [trivial]
+Document every event topic + data shape emitted by both contracts in `docs/EVENTS.md`. Group by contract. Use the table format `(topic1, topic2, ...) -> data`. Helps downstream indexers (Mercury, custom indexers) wire up subscriptions.
+Files: `docs/EVENTS.md`
+
+## 65. Coverage report in CI — [medium]
+Add `cargo-tarpaulin` step to the contracts CI workflow. Fail if line coverage drops below 80% on `contracts/`. Upload HTML report as artifact. Document the threshold in `docs/TESTING.md`.
+Files: `.github/workflows/contracts.yml`, `docs/TESTING.md`
