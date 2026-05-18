@@ -36,17 +36,17 @@ The project is a real ecosystem use case for Stellar — it answers "what can su
 
 ## What contributors will work on during Waves
 
-We've pre-filed **50 issues** across the full MVP stack — see `docs/WAVE_ISSUES.md`. Breakdown:
+We've pre-filed **65 issues** across the full MVP stack — see `docs/WAVE_ISSUES.md`. Breakdown:
 
-- **15 trivial** — input validation, docs, UI polish, CLI subcommands, config flags
-- **25 medium** — new contract entrypoints, WireGuard manager, session store, control API, frontend flows, CI workflows
-- **10 high** — signed-receipt settlement, reputation contract, end-to-end demo, full connect handshake, paginated registry, Soroban event watching
+- **19 trivial** — input validation, docs, UI polish, CLI subcommands, config flags, event/error audits
+- **32 medium** — new contract entrypoints, WireGuard manager, session store, control API, frontend flows, CI workflows, snapshot tests, coverage
+- **14 high** — signed-receipt settlement, reputation contract, end-to-end demo, full connect handshake, paginated registry, fuzz tests, cross-contract integration
 
 **Coverage by area:**
 
 | Area | Issues |
 |---|---|
-| Soroban contracts | 12 |
+| Soroban contracts + tests | 27 |
 | Node daemon (Go) | 15 |
 | Client CLI (Go) | 8 |
 | Frontend (React) | 8 |

@@ -16,7 +16,7 @@
 | React frontend | Skeleton — see `frontend/` |
 | Testnet deployment | Pending (issue #47) |
 
-50 scoped contributor issues across all five components are tracked in [`docs/WAVE_ISSUES.md`](docs/WAVE_ISSUES.md) and mirrored on the [GitHub issue tracker](../../issues).
+65 scoped contributor issues across all five components are tracked in [`docs/WAVE_ISSUES.md`](docs/WAVE_ISSUES.md) and mirrored on the [GitHub issue tracker](../../issues).
 
 ## Repo layout
 
